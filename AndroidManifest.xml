@@ -1,0 +1,89 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="biz.playr"
+    android:versionCode="9"
+    android:versionName="1.5.4" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="22" />
+
+    <!--  Hardware that is not used -->
+    <uses-feature android:name="android.hardware.audio.low_latency" android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.consumerir" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.accerlerometer" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.barometer" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.compass" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.light" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.proximity" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.faketouch" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <uses-feature android:name="android.hardware.usb.accessory" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi.direct" android:required="false" />
+    
+    <!--  Hardware that is used -->
+    <uses-permission android:name="android.hardware.screen.landscape" />
+    <uses-permission android:name="android.hardware.screen.portrait" />
+    <uses-permission android:name="android.hardware.television" />
+    <uses-permission android:name="android.hardware.wifi" android:required="true" />
+    
+    <!--  Software that is not used -->
+    <uses-permission android:name="android.software.app_widget" android:required="false" />
+    <uses-permission android:name="android.software.device_admin" android:required="false" />
+    <uses-permission android:name="android.software.home_screen" android:required="false" />
+    <uses-permission android:name="android.software.input_methods" android:required="false" />
+    <uses-permission android:name="android.software.live_wallpaper" android:required="false" />
+    <uses-permission android:name="android.software.sip" android:required="false" />
+    <uses-permission android:name="android.software.sip.voip" android:required="false" />
+    
+    <!-- Permissions that are used -->
+    	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+
+	<application 
+        android:name="biz.playr.MainApplication"
+        android:hardwareAccelerated="true"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="biz.playr.MainActivity"
+	        android:hardwareAccelerated="true"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver 
+		    android:name=".BootUpReceiver"
+		    android:label="BootUpReceiver"
+		    android:enabled="true"
+		    android:exported="true"
+			android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+		
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</receiver>	
+	</application>
+
+</manifest>
