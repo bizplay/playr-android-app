@@ -20,7 +20,7 @@
     var tryCountdown;
     
     var loadPlayer = function() {
-      "use strict"
+      "use strict";
       displayInformation();
       // Added Date param to bypass cache
       var url = "http://www.playr.biz/playr_loader_test_image.png?" + escape(new Date());
@@ -30,18 +30,12 @@
     };
     
     var gotoPlayer = function() {
-    "use strict"
-     var windowLocation = setTimeout(function(){window.location = ("http://play.playr.biz/?player_id=" + queryString.player_id);},2000)
-//     window.location = "http://play.playr.biz/";
-		 // window.location = "http://192.168.43.195:3000/play/";
-     // window.location = "http://playr.biz/1160/14579";
-     // window.location = "http://playr.biz/2385/16556";
-     // window.location = "http://playr.biz/2385/16582";
-     // window.location = "http://192.168.43.195:3000/2089/2";
+      "use strict";
+       var windowLocation = setTimeout(function(){window.location = ("http://play.playr.biz/?player_id=" + queryString.player_id);},2000)
     };
     
     var retryLoading = function() {
-      "use strict"
+      "use strict";
       var countdown = 10;
       document.getElementById("retry_message").style.display = "block";
       
@@ -57,29 +51,29 @@
       }, 1000);
     };
     var displayInformation = function() {
-      "use strict"
-    	document.getElementById("parameters").innerHTML = '<h3>Parameters:</h3>' + ((queryString.info != null && queryString.info != undefined) ? queryString.info.replace(/\,/g, " ").replace(/\:/g, ":&nbsp;") : "") + ((queryString.player_id !== null && queryString.player_id !== undefined) ? (" player_id: " + obfuscateUUID(queryString.player_id)) : "");
+      "use strict";
+      document.getElementById("parameters").innerHTML = '<h3>Parameters:</h3>' + ((queryString.info != null && queryString.info != undefined) ? queryString.info.replace(/\,/g, " ").replace(/\:/g, ":&nbsp;") : "") + ((queryString.player_id !== null && queryString.player_id !== undefined) ? (" player_id: " + obfuscateUUID(queryString.player_id)) : "");
       document.getElementById("parameters").style.display = "block";
-    	if (playerId() !== null && playerId() !== undefined) {
-	    	document.getElementById("info").innerHTML = '<h3>Information:</h3>' + 'Player&nbsp;id: ' + playerId();
-	      document.getElementById("info").style.display = "block";
-    	}
+      if (playerId() !== null && playerId() !== undefined) {
+        document.getElementById("info").innerHTML = '<h3>Information:</h3>' + 'Player&nbsp;id: ' + playerId();
+        document.getElementById("info").style.display = "block";
+      }
     };
     var playerId = function() {
-      "use strict"
-    	var cookies = document.cookie.split(';');
-    	for (var cookie in cookies) {
-    		if (cookie.indexOf('playback_device_id') > 0) {
-    			return cookie.split('=')[1];
-    		}
-    	}
+      "use strict";
+      var cookies = document.cookie.split(';');
+      for (var cookie in cookies) {
+        if (cookie.indexOf('playback_device_id') > 0) {
+          return cookie.split('=')[1];
+        }
+      }
     };
     var obfuscateUUID = function(uuid) {
-      "use strict"
-    	return (uuid !== null && uuid !== undefined) ? ("***" + uuid.substr(uuid.length - 6)) : "";
+      "use strict";
+      return (uuid !== null && uuid !== undefined) ? ("***" + uuid.substr(uuid.length - 6)) : "";
     };
     var queryString = function() {
-      "use strict"
+      "use strict";
       // This function is anonymous, is executed immediately and 
       // the return value is assigned to QueryString!
       var query_string = {};
@@ -106,8 +100,8 @@
 <body onload="loadPlayer();">
   <div id="ajax_loader"></div>
   <div id="retry_message"><p>Could not connect to player. Could your internet connection be down?</p><p>Retrying in <span id="seconds">0</span> seconds...</p></div>
-	<div id="parameters"></div>
-	<div id="info"></div>
+  <div id="parameters"></div>
+  <div id="info"></div>
   <div id="loaderImage"></div>
 </body>
 </html>
