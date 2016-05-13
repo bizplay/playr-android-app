@@ -1,7 +1,6 @@
 package biz.playr;
 
 import java.util.UUID;
-
 import biz.playr.R;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +17,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
-import android.webkit.WebSettings.PluginState;
 
 public class MainActivity extends Activity {
   private WebView webView = null;
@@ -28,6 +26,19 @@ public class MainActivity extends Activity {
 	super.onCreate(savedInstanceState);
 
 	requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+	// Setup restarting of the app when it crashes
+	Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
+	/*
+	Context context;
+	Intent intent = PendingIntent.getActivity(((biz.playr.MainApplication) context).getApplicationContext().getInstance().getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
+
+	Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
+		AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, intent);
+		System.exit(2);
+	});            
+	*/
 
 	// Setup visibility of system bars    	
 	View decorView = getWindow().getDecorView();
@@ -56,9 +67,9 @@ public class MainActivity extends Activity {
 	if (playerId == null || playerId.length() == 0) {
 		playerId = UUID.randomUUID().toString();
 		storePlayerId(playerId);
-		Log.i("com.bizplay.MainActivity","generated and stored playerId: " + playerId);
+		Log.i("biz.playr.MainActivity","generated and stored playerId: " + playerId);
 	} else {
-		Log.i("com.bizplay.MainActivity","retrieved stored playerId: " + playerId);
+		Log.i("biz.playr.MainActivity","retrieved stored playerId: " + playerId);
 	}
 	
 	// Setup webView
@@ -89,7 +100,6 @@ public class MainActivity extends Activity {
 	   }
 	});
 	
-	
 	if (savedInstanceState == null) {
 		webView.loadDataWithBaseURL("file:///android_asset/", "<html><head><script type=\"text/javascript\" charset=\"utf-8\">window.location = \"playr_loader.html?player_id="+ playerId + "\"</script><head><body/></html>", "text/html", "UTF-8", null );
 	}
@@ -113,7 +123,6 @@ public class MainActivity extends Activity {
 	}
     webSettings.setBuiltInZoomControls(false);
     webSettings.setSupportZoom(false);
-	webSettings.setPluginState(PluginState.ON);
   }
   
   @Override
