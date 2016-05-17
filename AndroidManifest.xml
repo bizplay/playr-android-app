@@ -48,13 +48,13 @@
     <uses-permission android:name="android.software.sip.voip" android:required="false" />
     
     <!-- Permissions that are used -->
-    	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+	  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	  <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-	<application 
+	  <application 
         android:name="biz.playr.MainApplication"
         android:hardwareAccelerated="true"
         android:allowBackup="true"
@@ -62,28 +62,26 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="biz.playr.MainActivity"
+          android:name="biz.playr.MainActivity"
 	        android:hardwareAccelerated="true"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+          android:label="@string/app_name" >
+          <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+          </intent-filter>
         </activity>
 
         <receiver 
-		    android:name=".BootUpReceiver"
-		    android:label="BootUpReceiver"
-		    android:enabled="true"
-		    android:exported="true"
-			android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+		        android:name=".BootUpReceiver"
+		        android:label="BootUpReceiver"
+		        android:enabled="true"
+		        android:exported="true"
+			      android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
 		
-			<intent-filter>
-				<action android:name="android.intent.action.BOOT_COMPLETED" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
-		</receiver>	
-	</application>
-
+			      <intent-filter>
+				        <action android:name="android.intent.action.BOOT_COMPLETED" />
+				        <category android:name="android.intent.category.DEFAULT" />
+			      </intent-filter>
+		    </receiver>	
+	  </application>
 </manifest>
