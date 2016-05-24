@@ -1,23 +1,25 @@
 package biz.playr;
 
 import android.app.Application;
+import android.util.Log;
 
 /** Initializes native components when the user starts the application. */
 public class MainApplication extends Application {
 
 	// Singleton instance
-    private static MainApplication instance = null;
+	private static MainApplication instance = null;
 
-    @Override
-    public void onCreate() {
-    	super.onCreate();
+	@Override
+	public void onCreate() {
+		Log.i("biz.playr.MainApplication","override onCreate");
+		super.onCreate();
 
-    	// Setup singleton instance
-        instance = this;
-    }
+		// Setup singleton instance
+		instance = this;
+	}
 
-    // Getter to access Singleton instance
-    public static MainApplication getInstance() {
-        return instance ; 
-    }
+	// Getter to access Singleton instance
+	public static MainApplication getInstance() {
+		return instance ; 
+	}
 }
