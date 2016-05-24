@@ -33,44 +33,8 @@ public class MainActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		// Setup restarting of the app when it crashes
-
-		/*Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
-			@Override
-				public void uncaughtException(Thread thread, Throwable ex) {
-				Intent intent = new Intent(this, biz.playr.MainActivity.class);
-	
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-						| Intent.FLAG_ACTIVITY_CLEAR_TASK
-						| Intent.FLAG_ACTIVITY_NEW_TASK);
-				PendingIntent pendingIntent = PendingIntent.getActivity(this.getBaseContext(), 0,
-					intent, intent.getFlags());
-				
-				AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
-				mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, pendingIntent);
-				System.exit(2);
-			}
-		});*/
-
 		Log.i("biz.playr.MainActivity","onCreate: setup restarting of app on crash");
-		//Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-		//    @Override
-		//    public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-		//        handleUncaughtException(paramThread, paramThrowable);
-		//    }
-		//});
-
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
-		Log.i("biz.playr.MainActivity", "onCreate: inner activity is this; " + ((DefaultExceptionHandler) Thread.getDefaultUncaughtExceptionHandler()).getActivity().equals(this));
-		/*
-		Context context;
-		Intent intent = PendingIntent.getActivity(((biz.playr.MainApplication) context).getApplicationContext().getInstance().getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
-
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
-			AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, intent);
-			System.exit(2);
-		});
-		*/
 
 		// Setup visibility of system bars    	
 		View decorView = getWindow().getDecorView();
