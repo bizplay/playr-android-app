@@ -3,8 +3,10 @@ package biz.playr;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class BootUpReceiver extends BroadcastReceiver{
+	private String className = "biz.playr.BootUpReceiver";
 	/* this class is used to force a restart of the MainActivity after the device is rebooted
 	 * for instance when Android has updated
 	 * see the <receiver> section of the AndroidManifest file
@@ -12,6 +14,7 @@ public class BootUpReceiver extends BroadcastReceiver{
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {        
+		Log.i(className,"override onReceive");
 		if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
 			/*
 			 * The Intent is kept in synch with the Manifest and DefaultExceptionhandler 

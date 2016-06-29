@@ -5,13 +5,14 @@ import android.util.Log;
 
 /** Initializes native components when the user starts the application. */
 public class MainApplication extends Application {
+	private String className = "biz.playr.MainApplication";
 
 	// Singleton instance
 	private static MainApplication instance = null;
 
 	@Override
 	public void onCreate() {
-		Log.i("biz.playr.MainApplication","override onCreate");
+		Log.i(className,"override onCreate");
 		super.onCreate();
 
 		// Setup singleton instance

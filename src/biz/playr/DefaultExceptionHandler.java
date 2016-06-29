@@ -12,11 +12,12 @@ import android.util.Log;
  * see http://chintanrathod.com/auto-restart-application-after-crash-forceclose-in-android/
  */
 public class DefaultExceptionHandler implements UncaughtExceptionHandler {
+	private String className = "biz.playr.DefaultExceptionHandler";
     public static int restartDelay = 10000; // 10 seconds
     Activity activity;
  
     public DefaultExceptionHandler(Activity activity) {
-    	Log.i("biz.playr.DefaultExceptionHandler","constructor");
+    	Log.i(className,"constructor");
         this.activity = activity;
     }
     public Activity getActivity() {
@@ -26,9 +27,9 @@ public class DefaultExceptionHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
  
-    	Log.i("biz.playr.DefaultExceptionHandler","uncaughtException handling -> restart after delay");
+    	Log.i(className,"uncaughtException handling -> restart after delay");
         try {
-    		Log.e("biz.playr.DefaultExceptionHandler","uncaughtException: Uncaught exception handling started. Exception message: " + ex.getMessage());
+    		Log.e(className,"uncaughtException: Uncaught exception handling started. Exception message: " + ex.getMessage());
         	Intent intent = new Intent(activity, biz.playr.MainActivity.class);
  
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -43,14 +44,14 @@ public class DefaultExceptionHandler implements UncaughtExceptionHandler {
             mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + restartDelay, pendingIntent);
  
             //This will finish your activity manually
-    		Log.e("biz.playr.DefaultExceptionHandler","uncaughtException: activity.finish() !!! About to restart application !!!");
+    		Log.e(className,"uncaughtException: activity.finish() !!! About to restart application !!!");
             activity.finish();
 
             //This will stop your application and take out from it.
-    		Log.e("biz.playr.DefaultExceptionHandler","uncaughtException: System.exit(2) !!! About to restart application !!!");
+    		Log.e(className,"uncaughtException: System.exit(2) !!! About to restart application !!!");
             System.exit(2);
         } catch (Exception e) {
-    		Log.e("biz.playr.DefaultExceptionHandler.uncaughtException catch block:","Exception message: " + e.getMessage());
+    		Log.e(className,".uncaughtException catch block: Exception message: " + e.getMessage());
 			e.printStackTrace();
         }
     }

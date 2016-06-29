@@ -25,6 +25,7 @@ import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
 	private WebView webView = null;
+	private String className = "biz.playr.MainActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,7 @@ public class MainActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		// Setup restarting of the app when it crashes
-		Log.i("biz.playr.MainActivity","onCreate: setup restarting of app on crash");
+		Log.i(className,"onCreate: setup restarting of app on crash");
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
 
 		// Setup visibility of system bars    	
@@ -63,24 +64,25 @@ public class MainActivity extends Activity {
 		if (playerId == null || playerId.length() == 0) {
 			playerId = UUID.randomUUID().toString();
 			storePlayerId(playerId);
-			Log.i("biz.playr.MainActivity","generated and stored playerId: " + playerId);
+			Log.i(className,"generated and stored playerId: " + playerId);
 		} else {
-			Log.i("biz.playr.MainActivity","retrieved stored playerId: " + playerId);
+			Log.i(className,"retrieved stored playerId: " + playerId);
 		}
 
 		// Setup webView
 		webView = (WebView)findViewById(R.id.mainUiView);
-		Log.i("biz.playr.MainActivity","webView is " + (webView == null ? "null" : "not null"));
+		Log.i(className,"webView is " + (webView == null ? "null" : "not null"));
 		setupWebView(webView);
 		webView.setWebChromeClient(new WebChromeClient() {
+			private String className = "biz.playr.WebChromeClient";
 			@Override
 			public void onShowCustomView(View view, CustomViewCallback callback) {
-				Log.i("biz.playr.WebChromeClient","override setWebChromeClient");
+				Log.i(className,"override setWebChromeClient");
 				super.onShowCustomView(view, callback);
 			}
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				Log.i("biz.playr.WebChromeClient","override onConsoleMessage: " + consoleMessage.message());
+				Log.i(className,"override onConsoleMessage: " + consoleMessage.message());
 				return super.onConsoleMessage(consoleMessage);
 			}
 		});
@@ -102,7 +104,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void handleUncaughtException(Thread paramThread, Throwable paramThrowable){
-		Log.e("biz.playr.MainActivity","handleUncaughtException; paramThread: " + paramThread + ", paramThrowable: " + paramThrowable);
+		Log.e(className,"handleUncaughtException; paramThread: " + paramThread + ", paramThrowable: " + paramThrowable);
 		// the context of the activityIntent might need to be the running PlayrService
 		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
 		Intent activityIntent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
@@ -126,7 +128,7 @@ public class MainActivity extends Activity {
 	@SuppressLint("SetJavaScriptEnabled")
 	/** Configure the Webview for usage as the application's window. */
 	private void setupWebView(WebView webView) {
-		Log.i("biz.playr.MainActivity","setupWebView");
+		Log.i(className,"setupWebView");
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
 		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -148,21 +150,21 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		Log.i("biz.playr.MainActivity","override onSaveInstanceState");
+		Log.i(className,"override onSaveInstanceState");
 		super.onSaveInstanceState(outState);
 		webView.saveState(outState);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		Log.i("biz.playr.MainActivity","override onRestoreInstanceState");
+		Log.i(className,"override onRestoreInstanceState");
 		super.onRestoreInstanceState(savedInstanceState);
 		webView.restoreState(savedInstanceState);
 	}
 
 	@Override
 	protected void onResume() {
-		Log.i("biz.playr.MainActivity","override onResume");
+		Log.i(className,"override onResume");
 		super.onResume();
 
 		hideBars();
@@ -171,34 +173,34 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onStart() {
-		Log.i("biz.playr.MainActivity","override onStart");
+		Log.i(className,"override onStart");
 		super.onRestart();
 	}
 
 	@Override
 	protected void onRestart() {
-		Log.i("biz.playr.MainActivity","override onRestart");
+		Log.i(className,"override onRestart");
 		super.onRestart();
 	}
 
 	@Override
 	protected void onPause() {
-		Log.i("biz.playr.MainActivity","override onPause");
+		Log.i(className,"override onPause");
 		webView.onPause();
 		super.onPause();
 	}
 
 	protected void onStop() {
-		Log.i("biz.playr.MainActivity","override onStop");
+		Log.i(className,"override onStop");
 		// The application is pushed into the background
 		super.onRestart();
 	}
 
 	@Override
 	protected void onDestroy() {
-		Log.i("biz.playr.MainActivity","override onDestroy");
+		Log.i(className,"override onDestroy");
 	
-		Log.e("biz.playr.MainActivity",".onDestroy: Prepare to restart the app.");
+		Log.e(className,".onDestroy: Prepare to restart the app.");
 		Intent intent = new Intent(this, biz.playr.MainActivity.class);
 
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -212,7 +214,7 @@ public class MainActivity extends Activity {
 		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
 		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
 
-		Log.e("biz.playr.MainActivity",".onDestroy: super.onDestroy() !!! About to restart application !!!");
+		Log.e(className,".onDestroy: super.onDestroy() !!! About to restart application !!!");
 		super.onDestroy();
 	}
 
