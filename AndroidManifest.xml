@@ -52,6 +52,7 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.GET_TASKS" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 
 	<application 
@@ -70,19 +71,20 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<service android:name="biz.playr.PlayrService">
-		</service>
+		<service android:name="biz.playr.PlayrService" />
+		<!-- 
+		<service android:name="biz.playr.PersistService" android:enabled="true" />
+		 -->	
 		<receiver 
 			android:name=".BootUpReceiver"
 			android:label="BootUpReceiver"
 			android:enabled="true"
 			android:exported="true"
 			android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
-		
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
-		</receiver>	
+		</receiver>
 	</application>
 </manifest>

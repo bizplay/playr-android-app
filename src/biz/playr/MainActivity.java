@@ -23,12 +23,17 @@ import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 
+//import java.lang.Thread.UncaughtExceptionHandler;
+//import android.content.Intent;
+
 public class MainActivity extends Activity {
 	private WebView webView = null;
 	private String className = "biz.playr.MainActivity";
+	private Intent intent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.i(className,"override onCreate");
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -37,6 +42,60 @@ public class MainActivity extends Activity {
 		Log.i(className,"onCreate: setup restarting of app on crash");
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
 
+		// Test exception handling by throwing an exception 20 seconds from now
+//		Handler handler = new Handler(); 
+//		handler.postDelayed(new Runnable() { 
+//			public void run() { 
+//				throw new IllegalArgumentException("Test exception");
+//			} 
+//		}, 20000); 
+
+
+// alternative
+//		Context context;
+//		Intent intent = PendingIntent.getActivity(((biz.playr.MainApplication) context).getApplicationContext().getInstance().getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
+//
+//		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
+//			AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, intent);
+//			System.exit(2);
+//		});
+		
+// alternative
+//		intent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
+//		
+//		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
+//			private String className = "java.lang.Thread.UncaughtExceptionHandler";
+//			
+//			@Override
+//			public void uncaughtException(Thread thread, Throwable ex) {
+//				Log.i(className,"override uncaughtException");
+//				// the context of the activityIntent might need to be the running PlayrService
+//				// keep the Intent in synch with the Manifest and DefaultExceptionHandler
+//				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+//								| Intent.FLAG_ACTIVITY_CLEAR_TASK
+//								| Intent.FLAG_ACTIVITY_NEW_TASK);
+//				intent.setAction(Intent.ACTION_MAIN);
+//				intent.addCategory(Intent.CATEGORY_LAUNCHER);
+//				PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0,
+//																		intent, intent.getFlags());
+//
+//				AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
+//				mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, pendingIntent);
+//				System.exit(2);
+//			}
+//		});
+
+// alternative
+//		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//			private String className = "java.lang.Thread.UncaughtExceptionHandler";
+//			@Override
+//			public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+//				Log.i(className,"override uncaughtException");
+//				handleUncaughtException(paramThread, paramThrowable);
+//			}
+//		});
+		
 		// Setup visibility of system bars    	
 		View decorView = getWindow().getDecorView();
 		decorView.setOnSystemUiVisibilityChangeListener
@@ -75,6 +134,8 @@ public class MainActivity extends Activity {
 		setupWebView(webView);
 		webView.setWebChromeClient(new WebChromeClient() {
 			private String className = "biz.playr.WebChromeClient";
+//			private int count = 0;
+			
 			@Override
 			public void onShowCustomView(View view, CustomViewCallback callback) {
 				Log.i(className,"override setWebChromeClient");
@@ -82,7 +143,14 @@ public class MainActivity extends Activity {
 			}
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				Log.i(className,"override onConsoleMessage: " + consoleMessage.message());
+				//Log.i(className,"override onConsoleMessage: " + consoleMessage.message());
+//				count++;
+//				if (count == 10) {
+//					Log.i(className,">>>>>> override onConsoleMessage, throw Exception");
+////					throw new IllegalArgumentException("Test exception");
+//				} else {
+//					Log.i(className,">>>>>> override onConsoleMessage, count = " + count);
+//				}
 				return super.onConsoleMessage(consoleMessage);
 			}
 		});
@@ -109,8 +177,8 @@ public class MainActivity extends Activity {
 		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
 		Intent activityIntent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
 		activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-				| Intent.FLAG_ACTIVITY_CLEAR_TASK
-				| Intent.FLAG_ACTIVITY_NEW_TASK);
+								| Intent.FLAG_ACTIVITY_CLEAR_TASK
+								| Intent.FLAG_ACTIVITY_NEW_TASK);
 		activityIntent.setAction(Intent.ACTION_MAIN);
 		activityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		startActivity(activityIntent);
@@ -174,7 +242,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onStart() {
 		Log.i(className,"override onStart");
-		super.onRestart();
+		super.onStart();
 	}
 
 	@Override
@@ -193,28 +261,34 @@ public class MainActivity extends Activity {
 	protected void onStop() {
 		Log.i(className,"override onStop");
 		// The application is pushed into the background
-		super.onRestart();
+		// This method is called when the device is turned (portrait/landscape switch)
+		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.i(className,"override onDestroy");
-	
-		Log.e(className,".onDestroy: Prepare to restart the app.");
-		Intent intent = new Intent(this, biz.playr.MainActivity.class);
 
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-				| Intent.FLAG_ACTIVITY_CLEAR_TASK
-				| Intent.FLAG_ACTIVITY_NEW_TASK);
-
-		PendingIntent pendingIntent = PendingIntent.getActivity(
-			biz.playr.MainApplication.getInstance().getBaseContext(), 0, intent, intent.getFlags());
-
-		//Following code will restart your application after <delay> seconds
-		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
-		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
-
-		Log.e(className,".onDestroy: super.onDestroy() !!! About to restart application !!!");
+// since onDestroy is called when the device changes aspect ratio
+// (which is possible on tablets) this method cannot be used to force
+// a restart of the application when this method is called.
+// Having this logic here causes a restart loop when the device changes
+// aspect the ratio.
+//		Log.e(className,".onDestroy: Prepare to restart the app.");
+//		Intent intent = new Intent(this, biz.playr.MainActivity.class);
+//
+//		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+//				| Intent.FLAG_ACTIVITY_CLEAR_TASK
+//				| Intent.FLAG_ACTIVITY_NEW_TASK);
+//
+//		PendingIntent pendingIntent = PendingIntent.getActivity(
+//			biz.playr.MainApplication.getInstance().getBaseContext(), 0, intent, intent.getFlags());
+//
+//		//Following code will restart your application after <delay> seconds
+//		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
+//		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
+//
+//		Log.e(className,".onDestroy: super.onDestroy() !!! About to restart application !!!");
 		super.onDestroy();
 	}
 
