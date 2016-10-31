@@ -3,6 +3,7 @@ package biz.playr;
 import java.util.UUID;
 
 import biz.playr.R;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
@@ -14,6 +15,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.view.View;
 import android.os.Handler;
 import android.webkit.ConsoleMessage;
@@ -29,7 +32,6 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
 	private WebView webView = null;
 	private String className = "biz.playr.MainActivity";
-	private Intent intent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +157,8 @@ public class MainActivity extends Activity {
 			}
 		});
 		webView.setWebViewClient(new WebViewClient() {
+			private String className = "biz.playr.WebViewClient";
+
 			public boolean shouldOverrideUrlLoading(WebView view, String url){
 				//Return false from the callback instead of calling view.loadUrl 
 				//instead. Calling loadUrl introduces a subtle bug where if you 
@@ -164,10 +168,49 @@ public class MainActivity extends Activity {
 				//http://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser
 				return false; // then it is not handled by default action
 			}
+
+			@Override
+		    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+				Log.i(className,"override onReceivedError");
+				//Toast.makeText(getActivity(), "WebView Error" + description(), Toast.LENGTH_SHORT).show();
+				Log.e(className, "WebView(Client) error: " + description + " code: " + String.valueOf(errorCode) + " URL: " + failingUrl);
+				Log.e(className, "===>>> !!! WebViewClient.onReceivedError Reloading Webview !!! <<<===");
+				//super.onReceivedError(view, errorCode, description, failingUrl);
+				view.reload();
+			}
+
+			/*  Added in API level 23 (use these when we set android:targetSdkVersion to 23)
+			@Override
+			public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+				Toast.makeText(getActivity(), "WebView Error" + error.getDescription(), Toast.LENGTH_SHORT).show();
+				super.onReceivedError(view, request, error);
+			}
+
+		    @Override
+		    public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+		        Toast.makeText(getActivity(), "WebView Error" + errorResponse.getReasonPhrase(), Toast.LENGTH_SHORT).show();
+
+		        super.onReceivedHttpError(view, request, errorResponse);
+		    }
+		    */
 		});
-	
+
+		String webviewUserAgent = webView.getSettings().getUserAgentString();
+		String webviewVersion = "Android System WebView not installed";
+		PackageManager pm = getPackageManager();
+		try {
+			PackageInfo pi = pm.getPackageInfo("com.google.android.webview", 0);
+			if (pi != null) {
+				webviewVersion = "Version name: " + pi.versionName + " Version code: " + pi.versionCode; 
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.e(className, "Android System WebView is not found");
+		}
+
 		if (savedInstanceState == null) {
-			webView.loadDataWithBaseURL("file:///android_asset/", "<html><head><script type=\"text/javascript\" charset=\"utf-8\">window.location = \"playr_loader.html?player_id="+ playerId + "\"</script><head><body/></html>", "text/html", "UTF-8", null );
+			String pageUrl = Uri.parse("playr_loader.html").buildUpon().appendQueryParameter("player_id", playerId).appendQueryParameter("webview_user_agent", webviewUserAgent).appendQueryParameter("webview_version", webviewVersion).build().toString();
+			String initialHtmlPage = "<html><head><script type=\"text/javascript\" charset=\"utf-8\">window.location = \"" + pageUrl + "\"</script><head><body/></html>";
+			webView.loadDataWithBaseURL("file:///android_asset/", initialHtmlPage, "text/html", "UTF-8", null );
 		}
 	}
 
@@ -227,7 +270,9 @@ public class MainActivity extends Activity {
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		Log.i(className,"override onRestoreInstanceState");
 		super.onRestoreInstanceState(savedInstanceState);
-		webView.restoreState(savedInstanceState);
+		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
+			webView.restoreState(savedInstanceState);
+		}
 	}
 
 	@Override
