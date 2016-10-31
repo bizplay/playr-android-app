@@ -5,7 +5,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
