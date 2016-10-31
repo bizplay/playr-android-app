@@ -1,11 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="biz.playr"
-	android:versionCode="11"
+	android:versionCode="12"
 	android:versionName="1.6.0" >
 
 	<!-- For API versions and names see: https://source.android.com/source/build-numbers.html -->
 	<uses-sdk
-		android:minSdkVersion="17"
+		android:minSdkVersion="19"
 		android:targetSdkVersion="22" />
 
 	<!--  Hardware that is not used -->
