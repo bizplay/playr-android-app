@@ -56,8 +56,8 @@
         '<tr><td><h3>Parameters:</h3></td><td></td></tr>' + 
         ((queryString.info !== null && queryString.info !== undefined) ? ("<tr><td><\td><td>" + queryString.info.replace(/\,/g, " ").replace(/\:/g, ":&nbsp;") + "</td></tr>") : "") + 
         ((queryString.player_id !== null && queryString.player_id !== undefined) ? ("<tr><td>player_id:</td>" + "<td>" + obfuscateUUID(queryString.player_id) + "</td></tr>") : "") +
-        ((queryString.webview_version !== null && queryString.webview_version !== undefined) ? ("<tr><td>webview_version:</td>" + "<td>" + queryString.webview_version.replace(/%20/g, " ").replace(/%2F/g, "/").replace(/%3B/g, ";") + "</td></tr>") : "") +
-        ((queryString.webview_user_agent !== null && queryString.webview_user_agent !== undefined) ? ("<tr><td>webview_user_agent:</td>" + "<td>" + queryString.webview_user_agent.replace(/%20/g, "&nbsp;").replace(/%2F/g, "/").replace(/%3B/g, ";").replace(/&nbsp;\(/g, "<br>(").replace(/\)&nbsp;/g, ")<br>") + "</td></tr>") : "") +
+        ((queryString.webview_version !== null && queryString.webview_version !== undefined) ? ("<tr><td>webview_version:</td>" + "<td>" + decodeURIComponent(queryString.webview_version) + "</td></tr>") : "") +
+        ((queryString.webview_user_agent !== null && queryString.webview_user_agent !== undefined) ? ("<tr><td>webview_user_agent:</td>" + "<td>" + decodeURIComponent(queryString.webview_user_agent).replace(/ /g, "&nbsp;").replace(/&nbsp;\(/g, "<br>(").replace(/\)&nbsp;/g, ")<br>") + "</td></tr>") : "") +
         "</table>";
       document.getElementById("parameters").style.display = "block";
       if (playerId() !== null && playerId() !== undefined) {
