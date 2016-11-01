@@ -52,51 +52,6 @@ public class MainActivity extends Activity {
 //			} 
 //		}, 20000); 
 
-
-// alternative
-//		Context context;
-//		Intent intent = PendingIntent.getActivity(((biz.playr.MainApplication) context).getApplicationContext().getInstance().getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
-//
-//		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
-//			AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, intent);
-//			System.exit(2);
-//		});
-		
-// alternative
-//		intent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
-//		
-//		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
-//			private String className = "java.lang.Thread.UncaughtExceptionHandler";
-//			
-//			@Override
-//			public void uncaughtException(Thread thread, Throwable ex) {
-//				Log.i(className,"override uncaughtException");
-//				// the context of the activityIntent might need to be the running PlayrService
-//				// keep the Intent in synch with the Manifest and DefaultExceptionHandler
-//				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-//								| Intent.FLAG_ACTIVITY_CLEAR_TASK
-//								| Intent.FLAG_ACTIVITY_NEW_TASK);
-//				intent.setAction(Intent.ACTION_MAIN);
-//				intent.addCategory(Intent.CATEGORY_LAUNCHER);
-//				PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0,
-//																		intent, intent.getFlags());
-//
-//				AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
-//				mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, pendingIntent);
-//				System.exit(2);
-//			}
-//		});
-
-// alternative
-//		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//			private String className = "java.lang.Thread.UncaughtExceptionHandler";
-//			@Override
-//			public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-//				Log.i(className,"override uncaughtException");
-//				handleUncaughtException(paramThread, paramThrowable);
-//			}
-//		});
 		
 		// Setup visibility of system bars    	
 		View decorView = getWindow().getDecorView();
