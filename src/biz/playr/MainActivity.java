@@ -45,15 +45,15 @@ public class MainActivity extends Activity {
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
 
 		// Test exception handling by throwing an exception 20 seconds from now
-//		Handler handler = new Handler(); 
-//		handler.postDelayed(new Runnable() { 
-//			public void run() { 
+//		Handler handler = new Handler();
+//		handler.postDelayed(new Runnable() {
+//			public void run() {
 //				throw new IllegalArgumentException("Test exception");
-//			} 
-//		}, 20000); 
+//			}
+//		}, 20000);
 
-		
-		// Setup visibility of system bars    	
+
+		// Setup visibility of system bars
 		View decorView = getWindow().getDecorView();
 		decorView.setOnSystemUiVisibilityChangeListener
 		(new View.OnSystemUiVisibilityChangeListener() {
@@ -62,13 +62,13 @@ public class MainActivity extends Activity {
 				// Note that system bars will only be "visible" if none of the
 				// LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
 				if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-					// bars are visible => user touched the screen, make the bars disappear again in 2 seconds 
-					Handler handler = new Handler(); 
-					handler.postDelayed(new Runnable() { 
-						public void run() { 
-							hideBars(); 
-						} 
-					}, 2000); 
+					// bars are visible => user touched the screen, make the bars disappear again in 2 seconds
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+						public void run() {
+							hideBars();
+						}
+					}, 2000);
 				} else {
 					// The system bars are NOT visible => do nothing
 				}
@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
 		webView.setWebChromeClient(new WebChromeClient() {
 			private String className = "biz.playr.WebChromeClient";
 //			private int count = 0;
-			
+
 			@Override
 			public void onShowCustomView(View view, CustomViewCallback callback) {
 				Log.i(className,"override setWebChromeClient");
@@ -115,10 +115,10 @@ public class MainActivity extends Activity {
 			private String className = "biz.playr.WebViewClient";
 
 			public boolean shouldOverrideUrlLoading(WebView view, String url){
-				//Return false from the callback instead of calling view.loadUrl 
-				//instead. Calling loadUrl introduces a subtle bug where if you 
-				//have any iframe within the page with a custom scheme URL 
-				//(say <iframe src="tel:123"/>) it will navigate your app's 
+				//Return false from the callback instead of calling view.loadUrl
+				//instead. Calling loadUrl introduces a subtle bug where if you
+				//have any iframe within the page with a custom scheme URL
+				//(say <iframe src="tel:123"/>) it will navigate your app's
 				//main frame to that URL most likely breaking the app as a side effect.
 				//http://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser
 				return false; // then it is not handled by default action
@@ -156,7 +156,7 @@ public class MainActivity extends Activity {
 		try {
 			PackageInfo pi = pm.getPackageInfo("com.google.android.webview", 0);
 			if (pi != null) {
-				webviewVersion = "Version name: " + pi.versionName + " Version code: " + pi.versionCode; 
+				webviewVersion = "Version name: " + pi.versionName + " Version code: " + pi.versionCode;
 			}
 		} catch (PackageManager.NameNotFoundException e) {
 			Log.e(className, "Android System WebView is not found");
@@ -188,7 +188,7 @@ public class MainActivity extends Activity {
 		mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
 
 		finish();
-		android.os.Process.killProcess(android.os.Process.myPid()); 
+		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
@@ -329,7 +329,7 @@ public class MainActivity extends Activity {
 	}
 
 	/*
-	 * PRIVATE methods  
+	 * PRIVATE methods
 	 */
 	private String getStoredPlayerId() {
 		SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);

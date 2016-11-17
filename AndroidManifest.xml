@@ -57,7 +57,7 @@
 	<uses-permission android:name="android.permission.GET_TASKS" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 
-	<application 
+	<application
 		android:name="biz.playr.MainApplication"
 		android:hardwareAccelerated="true"
 		android:allowBackup="true"
@@ -74,10 +74,10 @@
 			</intent-filter>
 		</activity>
 		<service android:name="biz.playr.PlayrService" />
-		<!-- 
+		<!--
 		<service android:name="biz.playr.PersistService" android:enabled="true" />
-		 -->	
-		<receiver 
+		 -->
+		<receiver
 			android:name=".BootUpReceiver"
 			android:label="BootUpReceiver"
 			android:enabled="true"
