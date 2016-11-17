@@ -23,7 +23,7 @@ public class PersistService extends Service {
 	// and http://stackoverflow.com/questions/7619917/how-to-get-context-in-android-service-class
 	private static Context relevantContext;
 	private static boolean stopTask;
-	private PowerManager.WakeLock mWakeLock;
+	private PowerManager.WakeLock mWakeLock = null;
 
 	// getting list of running apps has become less trivial
 	// see http://stackoverflow.com/questions/31156313/activitymanager-getrunningtasks-is-deprecated-android

@@ -179,8 +179,32 @@ public class MainActivity extends Activity {
 								| Intent.FLAG_ACTIVITY_NEW_TASK);
 		activityIntent.setAction(Intent.ACTION_MAIN);
 		activityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		startActivity(activityIntent);
+		// startActivity(activityIntent);
 
+		// delay start so this activity can be ended before the new one starts
+		PendingIntent pendingIntent = PendingIntent.getActivity(
+				this.getBaseContext(), 0, activityIntent, activityIntent.getFlags());
+		//Following code will restart application after <delay> seconds
+		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
+
+		finish();
+		android.os.Process.killProcess(android.os.Process.myPid());
+	}
+
+	public void restartActivity(){
+		Log.e(className,"restartActivity");
+		// the context of the activityIntent might need to be the running PlayrService
+		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
+		Intent activityIntent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
+		activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+								| Intent.FLAG_ACTIVITY_CLEAR_TASK
+								| Intent.FLAG_ACTIVITY_NEW_TASK);
+		activityIntent.setAction(Intent.ACTION_MAIN);
+		activityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		// startActivity(activityIntent);
+
+		// delay start so this activity can be ended before the new one starts
 		PendingIntent pendingIntent = PendingIntent.getActivity(
 				this.getBaseContext(), 0, activityIntent, activityIntent.getFlags());
 		//Following code will restart application after <delay> seconds

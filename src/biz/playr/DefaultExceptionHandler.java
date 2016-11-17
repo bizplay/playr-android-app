@@ -46,7 +46,7 @@ public class DefaultExceptionHandler implements UncaughtExceptionHandler {
 
 			//This will finish your activity manually
 			Log.e(className,"uncaughtException: activity.finish() !!! About to restart application !!!");
-			activity.finish();
+			getActivity().finish();
 
 			//This will stop your application and take out from it.
 			Log.e(className,"uncaughtException: System.exit(2) !!! About to restart application !!!");
