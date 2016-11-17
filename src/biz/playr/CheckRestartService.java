@@ -11,7 +11,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 public class CheckRestartService extends Service{
-	private String className = "biz.playr.CheckRestartService";
+	private static final String className = "biz.playr.CheckRestartService";
 	private static final int intervalBetweenRestartChecks = 60000; // 1 minute
 
 	// see http://stackoverflow.com/questions/6446221/get-context-in-a-service
@@ -33,15 +33,20 @@ public class CheckRestartService extends Service{
 		stopTask = false;
 		
 
-		// Start your (polling) task
+		// Start polling check for restart task
 		TimerTask task = new TimerTask() {
 			@Override
 			public void run() {
-				Log.i(className,".onCreate TimerTask task.run()");
+				Log.i(className,".onCreate TimerTask::run()");
 				// If you wish to stop the task/polling
 				if (stopTask){
 					this.cancel();
 				}
+
+				// check the server if restart is needed
+
+				// restart mainActivity
+				getActivity().restartActivity()
 
 				// The first in the list of RunningTasks is always the foreground task.
 //				ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
@@ -50,10 +55,10 @@ public class CheckRestartService extends Service{
 
 				// Check foreground app: If it is not in the foreground... bring it!
 //				if (!foregroundTaskPackageName.equals(YOUR_APP_PACKAGE_NAME)){
-				if (!isForegroundApp(relevantContext)){
-					Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(relevantContext.getPackageName());
-					startActivity(LaunchIntent);
-				}
+//				if (!isForegroundApp(relevantContext)){
+//					Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(relevantContext.getPackageName());
+//					startActivity(LaunchIntent);
+//				}
 			}
 		};
 		Timer timer = new Timer();
@@ -82,5 +87,8 @@ public class CheckRestartService extends Service{
 		Log.i(className,"override onBind");
 		// TODO start MainActivity
 		return null;
+	}
+	public stopCheck() {
+		stopTask = true;
 	}
 }
