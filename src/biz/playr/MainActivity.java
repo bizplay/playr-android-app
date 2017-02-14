@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.view.WindowManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActionBar;
@@ -35,181 +36,208 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(className,"override onCreate");
+		Log.i(className, "override onCreate");
 		super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		// Setup restarting of the app when it crashes
-		Log.i(className,"onCreate: setup restarting of app on crash");
-		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
+		Log.i(className, "onCreate: setup restarting of app on crash");
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(
+				this));
 
 		// Test exception handling by throwing an exception 20 seconds from now
-//		Handler handler = new Handler();
-//		handler.postDelayed(new Runnable() {
-//			public void run() {
-//				throw new IllegalArgumentException("Test exception");
-//			}
-//		}, 20000);
-
+		// Handler handler = new Handler();
+		// handler.postDelayed(new Runnable() {
+		// public void run() {
+		// throw new IllegalArgumentException("Test exception");
+		// }
+		// }, 20000);
 
 		// Setup visibility of system bars
 		View decorView = getWindow().getDecorView();
-		decorView.setOnSystemUiVisibilityChangeListener
-		(new View.OnSystemUiVisibilityChangeListener() {
-			@Override
-			public void onSystemUiVisibilityChange(int visibility) {
-				// Note that system bars will only be "visible" if none of the
-				// LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
-				if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-					// bars are visible => user touched the screen, make the bars disappear again in 2 seconds
-					Handler handler = new Handler();
-					handler.postDelayed(new Runnable() {
-						public void run() {
-							hideBars();
+		decorView
+				.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+					@Override
+					public void onSystemUiVisibilityChange(int visibility) {
+						// Note that system bars will only be "visible" if none of the
+						// LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
+						if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+							// bars are visible => user touched the screen, make
+							// the bars disappear again in 2 seconds
+							Handler handler = new Handler();
+							handler.postDelayed(new Runnable() {
+								public void run() {
+									hideBars();
+								}
+							}, 2000);
+						} else {
+							// The system bars are NOT visible => do nothing
 						}
-					}, 2000);
-				} else {
-					// The system bars are NOT visible => do nothing
-				}
-			}
-		});
+					}
+				});
 		setContentView(R.layout.activity_main);
 
 		String playerId = getStoredPlayerId();
 		if (playerId == null || playerId.length() == 0) {
 			playerId = UUID.randomUUID().toString();
 			storePlayerId(playerId);
-			Log.i(className,"generated and stored playerId: " + playerId);
+			Log.i(className, "generated and stored playerId: " + playerId);
 		} else {
-			Log.i(className,"retrieved stored playerId: " + playerId);
+			Log.i(className, "retrieved stored playerId: " + playerId);
 		}
 
 		// Setup webView
-		webView = (WebView)findViewById(R.id.mainUiView);
-		Log.i(className,"webView is " + (webView == null ? "null" : "not null"));
+		webView = (WebView) findViewById(R.id.mainUiView);
+		Log.i(className, "webView is "
+				+ (webView == null ? "null" : "not null"));
 		setupWebView(webView);
 		webView.setWebChromeClient(new WebChromeClient() {
 			private String className = "biz.playr.WebChromeClient";
-//			private int count = 0;
+
+			// private int count = 0;
 
 			@Override
 			public void onShowCustomView(View view, CustomViewCallback callback) {
-				Log.i(className,"override setWebChromeClient");
+				Log.i(className, "override setWebChromeClient");
 				super.onShowCustomView(view, callback);
 			}
+
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				//Log.i(className,"override onConsoleMessage: " + consoleMessage.message());
-//				count++;
-//				if (count == 10) {
-//					Log.i(className,">>>>>> override onConsoleMessage, throw Exception");
-////					throw new IllegalArgumentException("Test exception");
-//				} else {
-//					Log.i(className,">>>>>> override onConsoleMessage, count = " + count);
-//				}
+				// Log.i(className,"override onConsoleMessage: " +
+				// consoleMessage.message());
+				// count++;
+				// if (count == 10) {
+				// Log.i(className,">>>>>> override onConsoleMessage, throw Exception");
+				// // throw new IllegalArgumentException("Test exception");
+				// } else {
+				// Log.i(className,">>>>>> override onConsoleMessage, count = " + count);
+				// }
 				return super.onConsoleMessage(consoleMessage);
 			}
 		});
 		webView.setWebViewClient(new WebViewClient() {
 			private String className = "biz.playr.WebViewClient";
 
-			public boolean shouldOverrideUrlLoading(WebView view, String url){
-				//Return false from the callback instead of calling view.loadUrl
-				//instead. Calling loadUrl introduces a subtle bug where if you
-				//have any iframe within the page with a custom scheme URL
-				//(say <iframe src="tel:123"/>) it will navigate your app's
-				//main frame to that URL most likely breaking the app as a side effect.
-				//http://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				// Return false from the callback instead of calling view.loadUrl
+				// instead. Calling loadUrl introduces a subtle bug where if you
+				// have any iframe within the page with a custom scheme URL
+				// (say <iframe src="tel:123"/>) it will navigate your app's
+				// main frame to that URL most likely breaking the app as a side
+				// effect.
+				// http://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser
 				return false; // then it is not handled by default action
 			}
 
 			@Override
-		    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-				Log.i(className,"override onReceivedError");
-				//Toast.makeText(getActivity(), "WebView Error" + description(), Toast.LENGTH_SHORT).show();
-				Log.e(className, "WebView(Client) error: " + description + " code: " + String.valueOf(errorCode) + " URL: " + failingUrl);
-				Log.e(className, "===>>> !!! WebViewClient.onReceivedError Reloading Webview !!! <<<===");
-				//super.onReceivedError(view, errorCode, description, failingUrl);
+			public void onReceivedError(WebView view, int errorCode,
+					String description, String failingUrl) {
+				Log.i(className, "override onReceivedError");
+				// Toast.makeText(getActivity(), "WebView Error" +
+				// description(), Toast.LENGTH_SHORT).show();
+				Log.e(className, "WebView(Client) error: " + description
+						+ " code: " + String.valueOf(errorCode) + " URL: "
+						+ failingUrl);
+				Log.e(className,
+						"===>>> !!! WebViewClient.onReceivedError Reloading Webview !!! <<<===");
+				// super.onReceivedError(view, errorCode, description,
+				// failingUrl);
 				view.reload();
 			}
 
-			/*  Added in API level 23 (use these when we set android:targetSdkVersion to 23)
-			@Override
-			public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-				Toast.makeText(getActivity(), "WebView Error" + error.getDescription(), Toast.LENGTH_SHORT).show();
-				super.onReceivedError(view, request, error);
-			}
-
-		    @Override
-		    public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-		        Toast.makeText(getActivity(), "WebView Error" + errorResponse.getReasonPhrase(), Toast.LENGTH_SHORT).show();
-
-		        super.onReceivedHttpError(view, request, errorResponse);
-		    }
-		    */
+			/*
+			 * Added in API level 23 (use these when we set
+			 * android:targetSdkVersion to 23)
+			 *
+			 * @Override public void onReceivedError(WebView view,
+			 * WebResourceRequest request, WebResourceError error) {
+			 * Toast.makeText(getActivity(), "WebView Error" +
+			 * error.getDescription(), Toast.LENGTH_SHORT).show();
+			 * super.onReceivedError(view, request, error); }
+			 *
+			 * @Override public void onReceivedHttpError(WebView view,
+			 * WebResourceRequest request, WebResourceResponse errorResponse) {
+			 * Toast.makeText(getActivity(), "WebView Error" +
+			 * errorResponse.getReasonPhrase(), Toast.LENGTH_SHORT).show();
+			 *
+			 * super.onReceivedHttpError(view, request, errorResponse); }
+			 */
 		});
 
 		String webviewUserAgent = webView.getSettings().getUserAgentString();
 		String webviewVersion = "Android System WebView not installed";
+		String appVersion = "app version not found";
 		PackageManager pm = getPackageManager();
+		PackageInfo pi;
 		try {
-			PackageInfo pi = pm.getPackageInfo("com.google.android.webview", 0);
+			pi = pm.getPackageInfo("com.google.android.webview", 0);
 			if (pi != null) {
-				webviewVersion = "Version name: " + pi.versionName + " Version code: " + pi.versionCode;
+				webviewVersion = "Version name: " + pi.versionName
+						+ " Version code: " + pi.versionCode;
 			}
 		} catch (PackageManager.NameNotFoundException e) {
 			Log.e(className, "Android System WebView is not found");
 		}
+		try {
+			pi = pm.getPackageInfo(getPackageName(), 0);
+			if (pi != null) {
+				appVersion = pi.versionName;
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.e(className, getPackageName() + " is not found");
+		}
 
 		if (savedInstanceState == null) {
-			String pageUrl = Uri.parse("playr_loader.html").buildUpon().appendQueryParameter("player_id", playerId).appendQueryParameter("webview_user_agent", webviewUserAgent).appendQueryParameter("webview_version", webviewVersion).build().toString();
-			String initialHtmlPage = "<html><head><script type=\"text/javascript\" charset=\"utf-8\">window.location = \"" + pageUrl + "\"</script><head><body/></html>";
-			webView.loadDataWithBaseURL("file:///android_asset/", initialHtmlPage, "text/html", "UTF-8", null );
+			String pageUrl = Uri
+					.parse("playr_loader.html")
+					.buildUpon()
+					.appendQueryParameter("player_id", playerId)
+					.appendQueryParameter("webview_user_agent",
+							webviewUserAgent)
+					.appendQueryParameter("webview_version", webviewVersion)
+					.appendQueryParameter("app_version", appVersion).build()
+					.toString();
+			String initialHtmlPage = "<html><head><script type=\"text/javascript\" charset=\"utf-8\">window.location = \""
+					+ pageUrl + "\"</script><head><body/></html>";
+			webView.loadDataWithBaseURL("file:///android_asset/",
+					initialHtmlPage, "text/html", "UTF-8", null);
 		}
 	}
 
-	public void handleUncaughtException(Thread paramThread, Throwable paramThrowable){
-		Log.e(className,"handleUncaughtException; paramThread: " + paramThread + ", paramThrowable: " + paramThrowable);
-		// the context of the activityIntent might need to be the running PlayrService
-		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
-		Intent activityIntent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
-		activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-								| Intent.FLAG_ACTIVITY_CLEAR_TASK
-								| Intent.FLAG_ACTIVITY_NEW_TASK);
-		activityIntent.setAction(Intent.ACTION_MAIN);
-		activityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		// startActivity(activityIntent);
-
-		// delay start so this activity can be ended before the new one starts
-		PendingIntent pendingIntent = PendingIntent.getActivity(
-				this.getBaseContext(), 0, activityIntent, activityIntent.getFlags());
-		//Following code will restart application after <delay> seconds
-		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
-		mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
-
-		finish();
-		android.os.Process.killProcess(android.os.Process.myPid());
+	public void handleUncaughtException(Thread paramThread,
+			Throwable paramThrowable) {
+		Log.e(className, "handleUncaughtException; paramThread: " + paramThread
+				+ ", paramThrowable: " + paramThrowable);
+		// restartActivity();
+		recreate();
 	}
 
-	public void restartActivity(){
-		Log.e(className,"restartActivity");
+	public void restartActivity() {
+		Log.e(className, "restartActivity");
 		// the context of the activityIntent might need to be the running PlayrService
 		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
-		Intent activityIntent = new Intent(this.getBaseContext(), biz.playr.MainActivity.class);
+		Intent activityIntent = new Intent(this.getBaseContext(),
+				biz.playr.MainActivity.class);
 		activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-								| Intent.FLAG_ACTIVITY_CLEAR_TASK
-								| Intent.FLAG_ACTIVITY_NEW_TASK);
+				| Intent.FLAG_ACTIVITY_CLEAR_TASK
+				| Intent.FLAG_ACTIVITY_NEW_TASK);
 		activityIntent.setAction(Intent.ACTION_MAIN);
 		activityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		// startActivity(activityIntent);
 
 		// delay start so this activity can be ended before the new one starts
 		PendingIntent pendingIntent = PendingIntent.getActivity(
-				this.getBaseContext(), 0, activityIntent, activityIntent.getFlags());
-		//Following code will restart application after <delay> seconds
-		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
-		mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
+				this.getBaseContext(), 0, activityIntent,
+				activityIntent.getFlags());
+		// Following code will restart application after <delay> seconds
+		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication
+				.getInstance().getBaseContext()
+				.getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
+				+ DefaultExceptionHandler.restartDelay, pendingIntent);
 
 		finish();
 		android.os.Process.killProcess(android.os.Process.myPid());
@@ -218,7 +246,7 @@ public class MainActivity extends Activity {
 	@SuppressLint("SetJavaScriptEnabled")
 	/** Configure the Webview for usage as the application's window. */
 	private void setupWebView(WebView webView) {
-		Log.i(className,"setupWebView");
+		Log.i(className, "setupWebView");
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
 		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -240,14 +268,14 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		Log.i(className,"override onSaveInstanceState");
+		Log.i(className, "override onSaveInstanceState");
 		super.onSaveInstanceState(outState);
 		webView.saveState(outState);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		Log.i(className,"override onRestoreInstanceState");
+		Log.i(className, "override onRestoreInstanceState");
 		super.onRestoreInstanceState(savedInstanceState);
 		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
 			webView.restoreState(savedInstanceState);
@@ -256,7 +284,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		Log.i(className,"override onResume");
+		Log.i(className, "override onResume");
 		super.onResume();
 
 		hideBars();
@@ -265,54 +293,57 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onStart() {
-		Log.i(className,"override onStart");
+		Log.i(className, "override onStart");
 		super.onStart();
 	}
 
 	@Override
 	protected void onRestart() {
-		Log.i(className,"override onRestart");
+		Log.i(className, "override onRestart");
 		super.onRestart();
 	}
 
 	@Override
 	protected void onPause() {
-		Log.i(className,"override onPause");
+		Log.i(className, "override onPause");
 		webView.onPause();
 		super.onPause();
 	}
 
 	protected void onStop() {
-		Log.i(className,"override onStop");
+		Log.i(className, "override onStop");
 		// The application is pushed into the background
-		// This method is called when the device is turned (portrait/landscape switch)
+		// This method is called when the device is turned (portrait/landscape
+		// switch)
 		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy() {
-		Log.i(className,"override onDestroy");
+		Log.i(className, "override onDestroy");
 
-// since onDestroy is called when the device changes aspect ratio
-// (which is possible on tablets) this method cannot be used to force
-// a restart of the application when this method is called.
-// Having this logic here causes a restart loop when the device changes
-// aspect the ratio.
-//		Log.e(className,".onDestroy: Prepare to restart the app.");
-//		Intent intent = new Intent(this, biz.playr.MainActivity.class);
-//
-//		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-//				| Intent.FLAG_ACTIVITY_CLEAR_TASK
-//				| Intent.FLAG_ACTIVITY_NEW_TASK);
-//
-//		PendingIntent pendingIntent = PendingIntent.getActivity(
-//			biz.playr.MainApplication.getInstance().getBaseContext(), 0, intent, intent.getFlags());
-//
-//		//Following code will restart your application after <delay> seconds
-//		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
-//		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, pendingIntent);
-//
-//		Log.e(className,".onDestroy: super.onDestroy() !!! About to restart application !!!");
+		// since onDestroy is called when the device changes aspect ratio
+		// (which is possible on tablets) this method cannot be used to force
+		// a restart of the application when this method is called.
+		// Having this logic here causes a restart loop when the device changes
+		// aspect the ratio.
+		// Log.e(className,".onDestroy: Prepare to restart the app.");
+		// Intent intent = new Intent(this, biz.playr.MainActivity.class);
+		//
+		// intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+		// | Intent.FLAG_ACTIVITY_CLEAR_TASK
+		// | Intent.FLAG_ACTIVITY_NEW_TASK);
+		//
+		// PendingIntent pendingIntent = PendingIntent.getActivity(
+		// biz.playr.MainApplication.getInstance().getBaseContext(), 0, intent, intent.getFlags());
+		//
+		// //Following code will restart your application after <delay> seconds
+		// AlarmManager mgr = (AlarmManager)
+		// biz.playr.MainApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
+		// mgr.set(AlarmManager.RTC, System.currentTimeMillis() +
+		// DefaultExceptionHandler.restartDelay, pendingIntent);
+		//
+		// Log.e(className,".onDestroy: super.onDestroy() !!! About to restart application !!!");
 		super.onDestroy();
 	}
 
@@ -324,10 +355,10 @@ public class MainActivity extends Activity {
 			// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
 			// a general rule, you should design your app to hide the status bar whenever you
 			// hide the navigation bar.
-			int uiOptions =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-							| View.SYSTEM_UI_FLAG_FULLSCREEN
-							| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-							| View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+					| View.SYSTEM_UI_FLAG_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+					| View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 			decorView.setSystemUiVisibility(uiOptions);
 		}
 		// Remember that you should never show the action bar if the
@@ -352,6 +383,10 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	public String getPlayerId() {
+		return getStoredPlayerId();
+	}
+
 	/*
 	 * PRIVATE methods
 	 */
@@ -359,6 +394,7 @@ public class MainActivity extends Activity {
 		SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
 		return sharedPreferences.getString(getString(R.string.player_id_store), "");
 	}
+
 	private void storePlayerId(String value) {
 		SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
