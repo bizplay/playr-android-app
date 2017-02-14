@@ -55,9 +55,9 @@ public class CheckRestartService extends Service {
 				// check the server if restart is needed
 				boolean restartMainActivity = checkServerForRestart();
 				// restart mainActivity
-				relevantApplicationContext.
+//				relevantApplicationContext.
 				if (restartMainActivity) {
-					getContext().getActivity().restartActivity();
+//					getBaseContext().getActivity().restartActivity();
 				}
 
 				// The first in the list of RunningTasks is always the
