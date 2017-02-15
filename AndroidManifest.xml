@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="biz.playr"
 	android:versionCode="12"
-	android:versionName="1.6.0" >
+	android:versionName="1.6.6" >
 
 	<!-- For API versions and names see: https://source.android.com/source/build-numbers.html -->
 	<uses-sdk
