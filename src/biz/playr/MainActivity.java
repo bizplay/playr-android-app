@@ -77,6 +77,7 @@ public class MainActivity extends Activity {
 						}
 					}
 				});
+		decorView.setKeepScreenOn(true);
 		setContentView(R.layout.activity_main);
 
 		String playerId = getStoredPlayerId();
@@ -166,6 +167,7 @@ public class MainActivity extends Activity {
 			 * super.onReceivedHttpError(view, request, errorResponse); }
 			 */
 		});
+		webView.setKeepScreenOn(true);
 
 		String webviewUserAgent = webView.getSettings().getUserAgentString();
 		String webviewVersion = "Android System WebView not installed";

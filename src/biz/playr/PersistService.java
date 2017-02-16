@@ -10,7 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.PowerManager;
+//import android.os.PowerManager;
 import android.util.Log;
 
 public class PersistService extends Service {
@@ -23,7 +23,7 @@ public class PersistService extends Service {
 	// and http://stackoverflow.com/questions/7619917/how-to-get-context-in-android-service-class
 	private static Context relevantContext;
 	private static boolean stopTask;
-	private PowerManager.WakeLock mWakeLock = null;
+//	private PowerManager.WakeLock mWakeLock = null;
 
 	// getting list of running apps has become less trivial
 	// see http://stackoverflow.com/questions/31156313/activitymanager-getrunningtasks-is-deprecated-android
@@ -75,7 +75,7 @@ public class PersistService extends Service {
 		
 		// Optional: Screen Always On Mode!
 		// Screen will never switch off this way
-		mWakeLock = null;
+//		mWakeLock = null;
 //		if (settings.pmode_scrn_on){
 //			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 //			mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "a_tag");
@@ -113,9 +113,9 @@ public class PersistService extends Service {
 	public void onDestroy(){
 		Log.i(className,"override onDestroy");
 		stopTask = true;
-		if (mWakeLock != null) {
-			mWakeLock.release();
-		}
+//		if (mWakeLock != null) {
+//			mWakeLock.release();
+//		}
 		super.onDestroy();
 	}
 

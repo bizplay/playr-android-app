@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="biz.playr"
 	android:versionCode="12"
-	android:versionName="1.6.6" >
+	android:versionName="1.6.8" >
 
 	<!-- For API versions and names see: https://source.android.com/source/build-numbers.html -->
 	<uses-sdk
 		android:minSdkVersion="19"
-		android:targetSdkVersion="22" />
+		android:targetSdkVersion="21" />
 
 	<!--  Hardware that is not used -->
 	<uses-feature android:name="android.hardware.audio.low_latency" android:required="false" />
@@ -55,7 +55,8 @@
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 	<uses-permission android:name="android.permission.GET_TASKS" />
-	<!--  uses-permission android:name="android.permission.WAKE_LOCK" / -->
+	<!-- WAKE_LOCK is used by the media player inside WebView/Chromium -->
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
 
 	<application
 		android:name="biz.playr.MainApplication"
@@ -67,7 +68,8 @@
 		<activity
 			android:name="biz.playr.MainActivity"
 			android:hardwareAccelerated="true"
-			android:label="@string/app_name" >
+			android:label="@string/app_name"
+			android:keepScreenOn="true" >
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />

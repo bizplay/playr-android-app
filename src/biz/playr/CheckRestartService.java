@@ -14,9 +14,9 @@ import java.util.TimerTask;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
+//import android.content.pm.PackageInfo;
 import android.os.IBinder;
-import android.os.PowerManager;
+//import android.os.PowerManager;
 import android.util.Log;
 
 public class CheckRestartService extends Service {
