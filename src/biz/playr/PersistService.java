@@ -79,6 +79,8 @@ public class PersistService extends Service {
 //		if (settings.pmode_scrn_on){
 //			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 //			mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "a_tag");
+			// alternatively
+//			mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "a_tag");
 //			mWakeLock.acquire();
 //		}
 
