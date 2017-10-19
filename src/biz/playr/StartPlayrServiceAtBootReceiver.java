@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 public class StartPlayrServiceAtBootReceiver extends BroadcastReceiver {
-	private String className = "biz.playr.StartPlayrServiceAtBootReceiver";
+	private String className = "StPlayrSrv@BootReceiver";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {

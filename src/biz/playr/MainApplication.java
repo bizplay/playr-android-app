@@ -5,7 +5,7 @@ import android.util.Log;
 
 /** Initializes native components when the user starts the application. */
 public class MainApplication extends Application {
-	private String className = "biz.playr.MainApplication";
+	private String className = "MainApplication";
 
 	// Singleton instance
 	private static MainApplication instance = null;
@@ -21,6 +21,6 @@ public class MainApplication extends Application {
 
 	// Getter to access Singleton instance
 	public static MainApplication getInstance() {
-		return instance ; 
+		return instance ;
 	}
 }

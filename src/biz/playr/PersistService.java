@@ -16,7 +16,7 @@ import android.util.Log;
 public class PersistService extends Service {
 	// see http://stackoverflow.com/questions/18276355/how-to-keep-a-foreground-app-running-24-7
 	private static final int intervalBetweenForegroundChecks = 15000; // poll every 15 secs
-	private String className = "biz.playr.PersistService";
+	private String className = "PersistService";
 	//private static final String YOUR_APP_PACKAGE_NAME = "biz.playr";
 
 	// see http://stackoverflow.com/questions/6446221/get-context-in-a-service
@@ -43,7 +43,7 @@ public class PersistService extends Service {
 //
 //		return false;
 //	}
-	
+
 	// backup version of above method
 	private static boolean isForegroundApp(Context context) {
 	    // Get the Activity Manager
@@ -64,7 +64,7 @@ public class PersistService extends Service {
 	    return false;
 	}
 
-	
+
 	@Override
 	public void onCreate() {
 		Log.i(className,"override onCreate");
@@ -72,7 +72,7 @@ public class PersistService extends Service {
 
 		relevantContext = this;
 		stopTask = false;
-		
+
 		// Optional: Screen Always On Mode!
 		// Screen will never switch off this way
 //		mWakeLock = null;
