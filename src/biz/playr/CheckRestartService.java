@@ -15,23 +15,47 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 //import android.content.pm.PackageInfo;
+import android.content.SharedPreferences;
+import android.os.Binder;
 import android.os.IBinder;
 //import android.os.PowerManager;
 import android.util.Log;
 
 public class CheckRestartService extends Service {
-	private static final String className = "biz.playr.CheckRestartService";
+	private static final String className = "CheckRestartService";
 	private static final int intervalBetweenRestartChecks = 300000; // 5 minutes
-
-	// see http://stackoverflow.com/questions/6446221/get-context-in-a-service
-	// and
-	// http://stackoverflow.com/questions/7619917/how-to-get-context-in-android-service-class
-	private Context self;
-	private Context relevantApplicationContext;
 	private boolean stopTask;
 
-	public CheckRestartService(Context context) {
-		relevantApplicationContext = context.getApplicationContext();
+	// see https://stackoverflow.com/a/23587641/813660 answer for https://stackoverflow.com/questions/23586031/calling-activity-class-method-from-service-class
+	// on how to enable calling a method on an Activity from a Service
+	// having a direct reference is considered very bad practise
+	// Binder given to clients
+	private final IBinder binder = new LocalBinder();
+	// Registered callbacks
+	private IServiceCallbacks serviceCallbacks;
+
+
+	// Class used for the client Binder.
+	public class LocalBinder extends Binder {
+		CheckRestartService getService() {
+			// Return this instance of CheckRestartService so clients can call public methods
+			return CheckRestartService.this;
+		}
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		Log.i(className, "override onBind");
+		return binder;
+	}
+
+	public void setCallbacks(IServiceCallbacks callbacks) {
+		serviceCallbacks = callbacks;
+	}
+	// end of code to link to Activity
+
+	public CheckRestartService() {
+		Log.i(className, "default constructor");
 	}
 
 	@Override
@@ -39,7 +63,6 @@ public class CheckRestartService extends Service {
 		Log.i(className, "override onCreate");
 		super.onCreate();
 
-		self = this;
 		stopTask = false;
 
 		// Start polling check for restart task
@@ -54,30 +77,18 @@ public class CheckRestartService extends Service {
 
 				// check the server if restart is needed
 				boolean restartMainActivity = checkServerForRestart();
-				// restart mainActivity
-//				relevantApplicationContext.
 				if (restartMainActivity) {
-//					getBaseContext().getActivity().restartActivity();
+					Log.i(className, ".onCreate TimerTask: MainActivity has to be restarted");
+					if (serviceCallbacks != null) {
+						Log.i(className, ".onCreate TimerTask: restarting MainActivity");
+						serviceCallbacks.restartActivityWithDelay();
+					} else {
+						Log.e(className, ".onCreate TimerTask: serviceCallbacks is null");
+					}
+				} else {
+					Log.i(className, ".onCreate TimerTask: MainActivity does not need to be restarted");
 				}
 
-				// The first in the list of RunningTasks is always the
-				// foreground task.
-				// ActivityManager activityManager = (ActivityManager)
-				// getSystemService(ACTIVITY_SERVICE);
-				// RunningTaskInfo foregroundTaskInfo =
-				// activityManager.getRunningTasks(1).get(0);
-				// String foregroundTaskPackageName =
-				// foregroundTaskInfo.topActivity.getPackageName();
-
-				// Check foreground app: If it is not in the foreground... bring
-				// it!
-				// if
-				// (!foregroundTaskPackageName.equals(YOUR_APP_PACKAGE_NAME)){
-				// if (!isForegroundApp(self)){
-				// Intent LaunchIntent =
-				// getPackageManager().getLaunchIntentForPackage(self.getPackageName());
-				// startActivity(LaunchIntent);
-				// }
 			}
 		};
 		Timer timer = new Timer();
@@ -101,44 +112,45 @@ public class CheckRestartService extends Service {
 		super.onDestroy();
 	}
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		Log.i(className, "override onBind");
-		// TODO start MainActivity
-		return null;
-	}
-
 	public void stopCheck() {
 		stopTask = true;
 	}
 
 	private boolean checkServerForRestart() {
 		String reply = "";
+		String playerId = "";
 		HttpURLConnection urlConnection = null;
-		String playerId = relevantApplicationContext.getSharedPreferences(
-				STORAGE_SERVICE, MODE_PRIVATE).getString(
-				getString(R.string.player_id_store), "");
 
-		try {
-			URL url = new URL("http://ajax.playr.biz/watchdogs/" + playerId
-					+ "/command");
-			Log.i(className, "override onCreate URL: " + url.toString());
-			urlConnection = (HttpURLConnection) url.openConnection();
-			InputStream in = new BufferedInputStream(
-					urlConnection.getInputStream());
-			reply = readStream(in);
-		} catch (MalformedURLException e) {
-			Log.i(className,
-					"checkServerForRestart IO exception opening connection; "
-							+ e.getMessage());
-		} catch (IOException e) {
-			Log.i(className,
-					"checkServerForRestart IO exception opening connection; "
-							+ e.getMessage());
-		} finally {
-			urlConnection.disconnect();
+		if (serviceCallbacks != null) {
+			playerId = serviceCallbacks.getPlayerId();
+		} else {
+			Log.e(className, "checkServerForRestart serviceCallbacks is null");
 		}
-		return (reply == "1");
+
+
+		if (!playerId.isEmpty()) {
+			try {
+				URL url = new URL("http://ajax.playr.biz/watchdogs/" + playerId
+						+ "/command");
+				Log.i(className, "checkServerForRestart URL: " + url.toString());
+				urlConnection = (HttpURLConnection) url.openConnection();
+				InputStream in = new BufferedInputStream(
+						urlConnection.getInputStream());
+				reply = readStream(in).trim();
+			} catch (MalformedURLException e) {
+				Log.e(className,
+						"checkServerForRestart IO exception opening connection; " + e.getMessage());
+			} catch (IOException e) {
+				Log.e(className,
+						"checkServerForRestart IO exception opening connection; " + e.getMessage());
+			} finally {
+				urlConnection.disconnect();
+			}
+			Log.i(className, "checkServerForRestart response: " + reply);
+		} else {
+			Log.e(className, "checkServerForRestart playerId is empty");
+		}
+		return ("1".equals(reply));
 	}
 
 	private String readStream(InputStream inputStream) {
@@ -153,8 +165,7 @@ public class CheckRestartService extends Service {
 
 			return total.toString();
 		} catch (IOException e) {
-			Log.i(className, "readStream IO exception reading inputStream; "
-					+ e.getMessage());
+			Log.i(className, "readStream IO exception reading inputStream; " + e.getMessage());
 		}
 		return "";
 	}

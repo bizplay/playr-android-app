@@ -3,8 +3,12 @@ package biz.playr;
 import java.util.UUID;
 
 import biz.playr.R;
+
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -30,9 +34,32 @@ import android.webkit.WebViewClient;
 //import java.lang.Thread.UncaughtExceptionHandler;
 //import android.content.Intent;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements IServiceCallbacks {
 	private WebView webView = null;
 	private String className = "biz.playr.MainActivity";
+	private CheckRestartService checkRestartService;
+	private boolean bound = false;
+	// Callbacks for service binding, passed to bindService()
+	private ServiceConnection serviceConnection = new ServiceConnection() {
+		private String className = "ServiceConnection";
+
+		@Override
+		public void onServiceConnected(ComponentName componentName, IBinder service) {
+			Log.i(className, "override onServiceConnected");
+			// cast the IBinder and get MyService instance
+			biz.playr.CheckRestartService.LocalBinder binder = (biz.playr.CheckRestartService.LocalBinder) service;
+			checkRestartService = binder.getService();
+			bound = true;
+			checkRestartService.setCallbacks(MainActivity.this); // register
+			Log.i(className, "onServiceConnected: service bound");
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName componentName) {
+			Log.i(className, "override onServiceDisconnected");
+			bound = false;
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +71,7 @@ public class MainActivity extends Activity {
 
 		// Setup restarting of the app when it crashes
 		Log.i(className, "onCreate: setup restarting of app on crash");
-		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(
-				this));
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler(this));
 
 		// Test exception handling by throwing an exception 20 seconds from now
 		// Handler handler = new Handler();
@@ -91,11 +117,10 @@ public class MainActivity extends Activity {
 
 		// Setup webView
 		webView = (WebView) findViewById(R.id.mainUiView);
-		Log.i(className, "webView is "
-				+ (webView == null ? "null" : "not null"));
+		Log.i(className, "webView is " + (webView == null ? "null" : "not null"));
 		setupWebView(webView);
 		webView.setWebChromeClient(new WebChromeClient() {
-			private String className = "biz.playr.WebChromeClient";
+			private String className = "WebChromeClient";
 
 			// private int count = 0;
 
@@ -217,8 +242,34 @@ public class MainActivity extends Activity {
 		recreate();
 	}
 
+	public void restartDelayed() {
+		Log.i(className, "restartDelayed");
+
+//		PendingIntent localPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_ONE_SHOT);
+		Intent activityIntent = new Intent(this.getBaseContext(),
+				biz.playr.MainActivity.class);
+		activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_CLEAR_TASK
+				| Intent.FLAG_ACTIVITY_NEW_TASK);
+		activityIntent.setAction(Intent.ACTION_MAIN);
+		activityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		PendingIntent localPendingIntent = PendingIntent.getActivity(this.getBaseContext(), 0, activityIntent, PendingIntent.FLAG_ONE_SHOT);
+		((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(0, System.currentTimeMillis() + DefaultExceptionHandler.restartDelay, localPendingIntent);
+
+		Log.i(className, "restartDelayed: end");
+	}
+
+	// implement the IServiceCallbacks interface
+	public void restartActivityWithDelay() {
+		this.restartActivity();
+	}
+	public String getPlayerId() {
+		return getStoredPlayerId();
+	}
+	// end of implementation IServiceCallbacks
+
 	public void restartActivity() {
-		Log.e(className, "restartActivity");
+		Log.i(className, "restartActivity");
 		// the context of the activityIntent might need to be the running PlayrService
 		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
 		Intent activityIntent = new Intent(this.getBaseContext(),
@@ -233,7 +284,7 @@ public class MainActivity extends Activity {
 		// delay start so this activity can be ended before the new one starts
 		PendingIntent pendingIntent = PendingIntent.getActivity(
 				this.getBaseContext(), 0, activityIntent,
-				activityIntent.getFlags());
+				PendingIntent.FLAG_ONE_SHOT);
 		// Following code will restart application after <delay> seconds
 		AlarmManager mgr = (AlarmManager) biz.playr.MainApplication
 				.getInstance().getBaseContext()
@@ -241,12 +292,15 @@ public class MainActivity extends Activity {
 		mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
 				+ DefaultExceptionHandler.restartDelay, pendingIntent);
 
+		Log.i(className, "restartActivity: killing this process");
+		setResult(RESULT_OK);
 		finish();
 		android.os.Process.killProcess(android.os.Process.myPid());
+		// System.exit(2);
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
-	/** Configure the Webview for usage as the application's window. */
+	/* Configure the Webview for usage as the application's window. */
 	private void setupWebView(WebView webView) {
 		Log.i(className, "setupWebView");
 		WebSettings webSettings = webView.getSettings();
@@ -297,6 +351,12 @@ public class MainActivity extends Activity {
 	protected void onStart() {
 		Log.i(className, "override onStart");
 		super.onStart();
+		// bind to CheckRestartService
+		Intent intent = new Intent(this, CheckRestartService.class);
+		bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+//		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
+//		bindService(intent, serviceConnection, Context.BIND_ABOVE_CLIENT);
+		Log.i(className, "onStart: service bound (auto create)");
 	}
 
 	@Override
@@ -317,7 +377,14 @@ public class MainActivity extends Activity {
 		// The application is pushed into the background
 		// This method is called when the device is turned (portrait/landscape
 		// switch)
+		restartDelayed();
 		super.onStop();
+		// Unbind from service
+		if (bound) {
+			checkRestartService.setCallbacks(null); // unregister
+			unbindService(serviceConnection);
+			bound = false;
+		}
 	}
 
 	@Override
@@ -346,6 +413,7 @@ public class MainActivity extends Activity {
 		// DefaultExceptionHandler.restartDelay, pendingIntent);
 		//
 		// Log.e(className,".onDestroy: super.onDestroy() !!! About to restart application !!!");
+		restartDelayed();
 		super.onDestroy();
 	}
 
@@ -372,7 +440,7 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-	/** Navigate the WebView's history when the user presses the Back key. */
+	/* Navigate the WebView's history when the user presses the Back key. */
 	public void onBackPressed() {
 		if (webView != null) {
 			if (webView.canGoBack()) {
@@ -383,10 +451,6 @@ public class MainActivity extends Activity {
 		} else {
 			super.onBackPressed();
 		}
-	}
-
-	public String getPlayerId() {
-		return getStoredPlayerId();
 	}
 
 	/*
