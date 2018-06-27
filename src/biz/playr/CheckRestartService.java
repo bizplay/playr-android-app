@@ -61,7 +61,7 @@ public class CheckRestartService extends Service {
 	// Binder given to clients
 	private final IBinder binder = new LocalBinder();
 	// Registered callbacks
-	private biz.playr.IServiceCallbacks serviceCallbacks;
+	private IServiceCallbacks serviceCallbacks;
 
 
 	// Class used for the client Binder.
