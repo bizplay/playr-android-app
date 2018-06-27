@@ -36,27 +36,28 @@ import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity implements IServiceCallbacks {
 	private WebView webView = null;
-	private String className = "biz.playr.MainActivity";
+	private static final String className = "biz.playr.MainActivity";
 	private CheckRestartService checkRestartService;
 	private boolean bound = false;
+
 	// Callbacks for service binding, passed to bindService()
 	private ServiceConnection serviceConnection = new ServiceConnection() {
-		private String className = "ServiceConnection";
+		private static final String className = "ServiceConnection";
 
 		@Override
 		public void onServiceConnected(ComponentName componentName, IBinder service) {
-			Log.i(className, "override onServiceConnected");
-			// cast the IBinder and get MyService instance
+			Log.i(className, " override ServiceConnection.onServiceConnected");
+			// cast the IBinder and get CheckRestartService instance
 			biz.playr.CheckRestartService.LocalBinder binder = (biz.playr.CheckRestartService.LocalBinder) service;
 			checkRestartService = binder.getService();
 			bound = true;
-			checkRestartService.setCallbacks(MainActivity.this); // register
-			Log.i(className, "onServiceConnected: service bound");
+			checkRestartService.setCallbacks(MainActivity.this); // bind IServiceCallbacks
+			Log.i(className, " ServiceConnection.onServiceConnected: service bound");
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName componentName) {
-			Log.i(className, "override onServiceDisconnected");
+			Log.i(className, " override ServiceConnection.onServiceDisconnected");
 			bound = false;
 		}
 	};
@@ -84,25 +85,25 @@ public class MainActivity extends Activity implements IServiceCallbacks {
 		// Setup visibility of system bars
 		View decorView = getWindow().getDecorView();
 		decorView
-				.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-					@Override
-					public void onSystemUiVisibilityChange(int visibility) {
-						// Note that system bars will only be "visible" if none of the
-						// LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
-						if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-							// bars are visible => user touched the screen, make
-							// the bars disappear again in 2 seconds
-							Handler handler = new Handler();
-							handler.postDelayed(new Runnable() {
-								public void run() {
-									hideBars();
-								}
-							}, 2000);
-						} else {
-							// The system bars are NOT visible => do nothing
-						}
+			.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+				@Override
+				public void onSystemUiVisibilityChange(int visibility) {
+					// Note that system bars will only be "visible" if none of the
+					// LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
+					if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+						// bars are visible => user touched the screen, make
+						// the bars disappear again in 2 seconds
+						Handler handler = new Handler();
+						handler.postDelayed(new Runnable() {
+							public void run() {
+								hideBars();
+							}
+						}, 2000);
+					} else {
+						// The system bars are NOT visible => do nothing
 					}
-				});
+				}
+			});
 		decorView.setKeepScreenOn(true);
 		setContentView(R.layout.activity_main);
 
@@ -145,7 +146,7 @@ public class MainActivity extends Activity implements IServiceCallbacks {
 			}
 		});
 		webView.setWebViewClient(new WebViewClient() {
-			private String className = "biz.playr.WebViewClient";
+			private static final String className = "biz.playr.WebViewClient";
 
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				// Return false from the callback instead of calling view.loadUrl
@@ -271,7 +272,7 @@ public class MainActivity extends Activity implements IServiceCallbacks {
 	public void restartActivity() {
 		Log.i(className, "restartActivity");
 		// the context of the activityIntent might need to be the running PlayrService
-		// keep the Intent in synch with the Manifest and DefaultExceptionHandler
+		// keep the Intent in sync with the Manifest and DefaultExceptionHandler
 		Intent activityIntent = new Intent(this.getBaseContext(),
 				biz.playr.MainActivity.class);
 		activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -374,17 +375,17 @@ public class MainActivity extends Activity implements IServiceCallbacks {
 
 	protected void onStop() {
 		Log.i(className, "override onStop");
-		// The application is pushed into the background
-		// This method is called when the device is turned (portrait/landscape
-		// switch)
-		restartDelayed();
-		super.onStop();
 		// Unbind from service
 		if (bound) {
 			checkRestartService.setCallbacks(null); // unregister
 			unbindService(serviceConnection);
 			bound = false;
 		}
+		// The application is pushed into the background
+		// This method is called when the device is turned (portrait/landscape
+		// switch)
+		restartDelayed();
+		super.onStop();
 	}
 
 	@Override

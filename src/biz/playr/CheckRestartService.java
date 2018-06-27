@@ -21,10 +21,39 @@ import android.os.IBinder;
 //import android.os.PowerManager;
 import android.util.Log;
 
+// If this service should run in a separate process the communication used here will not do
+// Instead use a Broadcast and BroadcastReceiver to communicate between Service and MainActivity
 public class CheckRestartService extends Service {
 	private static final String className = "CheckRestartService";
-	private static final int intervalBetweenRestartChecks = 300000; // 5 minutes
-	private boolean stopTask;
+	// use type long since the second and third parameter for
+	// scheduleAtFixedRate is of type long
+	private static final long intervalBetweenRestartChecks = 300000; // 5 minutes in milliseconds
+	private static final String rebootResponse = "1";
+	private boolean stopTask = false;
+	private Timer timer = null;
+	//
+	// alternative for using the timer, could even replace this service???
+	// see; https://developer.android.com/reference/android/os/Handler.html
+	//      https://developer.android.com/reference/java/lang/Runnable.html
+	//      https://developer.android.com/reference/android/os/Looper.html
+	// make sure the threading model works in this situation
+	// private Handler handler = new Handler();
+
+	// private Runnable myRunnable = new Runnable() {
+	// 	public void run() {
+	// 		// do stuff
+
+	// 		// run again
+	// 		handler.postDelayed(myRunnable, intervalBetweenRestartChecks);
+	// 	}
+	// };
+
+	//
+	// trigger the runnable
+	// handler.postDelayed(myRunnable, intervalBetweenRestartChecks);
+	//
+	// END alternative for timer
+	//
 
 	// see https://stackoverflow.com/a/23587641/813660 answer for https://stackoverflow.com/questions/23586031/calling-activity-class-method-from-service-class
 	// on how to enable calling a method on an Activity from a Service
@@ -32,7 +61,7 @@ public class CheckRestartService extends Service {
 	// Binder given to clients
 	private final IBinder binder = new LocalBinder();
 	// Registered callbacks
-	private IServiceCallbacks serviceCallbacks;
+	private biz.playr.IServiceCallbacks serviceCallbacks;
 
 
 	// Class used for the client Binder.
@@ -67,9 +96,11 @@ public class CheckRestartService extends Service {
 
 		// Start polling check for restart task
 		TimerTask task = new TimerTask() {
+			private static final String className = "TimerTask";
+
 			@Override
 			public void run() {
-				Log.i(className, ".onCreate TimerTask::run()");
+				Log.i(className, "run");
 				// If you wish to stop the task/polling
 				if (stopTask) {
 					this.cancel();
@@ -78,21 +109,21 @@ public class CheckRestartService extends Service {
 				// check the server if restart is needed
 				boolean restartMainActivity = checkServerForRestart();
 				if (restartMainActivity) {
-					Log.i(className, ".onCreate TimerTask: MainActivity has to be restarted");
+					Log.i(className, "run: MainActivity has to be restarted");
 					if (serviceCallbacks != null) {
-						Log.i(className, ".onCreate TimerTask: restarting MainActivity");
+						Log.i(className, "run: restarting MainActivity");
 						serviceCallbacks.restartActivityWithDelay();
 					} else {
-						Log.e(className, ".onCreate TimerTask: serviceCallbacks is null");
+						Log.e(className, "run: restarting MainActivity impossible; serviceCallbacks is null");
 					}
 				} else {
-					Log.i(className, ".onCreate TimerTask: MainActivity does not need to be restarted");
+					Log.i(className, "run: MainActivity does not need to be restarted");
 				}
-
 			}
 		};
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(task, 0, intervalBetweenRestartChecks);
+
+		timer = new Timer();
+		timer.scheduleAtFixedRate(task, intervalBetweenRestartChecks, intervalBetweenRestartChecks);
 
 		// To end the application
 		// Log.e(className,"onCreate: System.exit(2) !!! End application !!!");
@@ -109,6 +140,8 @@ public class CheckRestartService extends Service {
 	public void onDestroy() {
 		Log.i(className, "override onDestroy");
 		stopTask = true;
+		timer.cancel();
+		timer = null;
 		super.onDestroy();
 	}
 
@@ -117,55 +150,52 @@ public class CheckRestartService extends Service {
 	}
 
 	private boolean checkServerForRestart() {
-		String reply = "";
+		String response = "";
 		String playerId = "";
 		HttpURLConnection urlConnection = null;
 
 		if (serviceCallbacks != null) {
 			playerId = serviceCallbacks.getPlayerId();
 		} else {
-			Log.e(className, "checkServerForRestart serviceCallbacks is null");
+			Log.e(className, ".checkServerForRestart serviceCallbacks is null");
 		}
 
 
 		if (!playerId.isEmpty()) {
 			try {
-				URL url = new URL("http://ajax.playr.biz/watchdogs/" + playerId
-						+ "/command");
-				Log.i(className, "checkServerForRestart URL: " + url.toString());
+				URL url = new URL("http://ajax.playr.biz/watchdogs/" + playerId + "/command");
+				Log.i(className, ".checkServerForRestart URL: " + url.toString());
 				urlConnection = (HttpURLConnection) url.openConnection();
-				InputStream in = new BufferedInputStream(
-						urlConnection.getInputStream());
-				reply = readStream(in).trim();
+				InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+				response = readStream(inputStream).trim();
 			} catch (MalformedURLException e) {
 				Log.e(className,
-						"checkServerForRestart IO exception opening connection; " + e.getMessage());
+					".checkServerForRestart malformed URL exception opening connection; " + e.getMessage());
 			} catch (IOException e) {
 				Log.e(className,
-						"checkServerForRestart IO exception opening connection; " + e.getMessage());
+					".checkServerForRestart IO exception opening connection; " + e.getMessage());
 			} finally {
 				urlConnection.disconnect();
 			}
-			Log.i(className, "checkServerForRestart response: " + reply);
+			Log.i(className, ".checkServerForRestart response: " + response);
 		} else {
-			Log.e(className, "checkServerForRestart playerId is empty");
+			Log.e(className, ".checkServerForRestart playerId is empty");
 		}
-		return ("1".equals(reply));
+		return (rebootResponse.equals(response));
 	}
 
 	private String readStream(InputStream inputStream) {
 		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(
-					inputStream));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 			StringBuilder total = new StringBuilder(inputStream.available());
 			String line;
-			while ((line = r.readLine()) != null) {
+			while ((line = reader.readLine()) != null) {
 				total.append(line).append('\n');
 			}
 
 			return total.toString();
 		} catch (IOException e) {
-			Log.i(className, "readStream IO exception reading inputStream; " + e.getMessage());
+			Log.i(className, ".readStream: IO exception reading inputStream; " + e.getMessage());
 		}
 		return "";
 	}

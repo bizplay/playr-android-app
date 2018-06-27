@@ -15,8 +15,8 @@ import android.util.Log;
 
 public class PersistService extends Service {
 	// see http://stackoverflow.com/questions/18276355/how-to-keep-a-foreground-app-running-24-7
-	private static final int intervalBetweenForegroundChecks = 15000; // poll every 15 secs
-	private String className = "PersistService";
+	static final long intervalBetweenForegroundChecks = 30000; // 30 seconds in milliseconds
+	private static final String className = "PersistService";
 	//private static final String YOUR_APP_PACKAGE_NAME = "biz.playr";
 
 	// see http://stackoverflow.com/questions/6446221/get-context-in-a-service
@@ -108,7 +108,7 @@ public class PersistService extends Service {
 			}
 		};
 		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(task, 0, intervalBetweenForegroundChecks);
+		timer.scheduleAtFixedRate(task, intervalBetweenForegroundChecks, intervalBetweenForegroundChecks);
 	}
 
 	@Override
