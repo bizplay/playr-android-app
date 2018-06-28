@@ -382,9 +382,14 @@ public class MainActivity extends Activity implements IServiceCallbacks {
 			bound = false;
 		}
 		// The application is pushed into the background
-		// This method is called when the device is turned (portrait/landscape
-		// switch)
-		restartDelayed();
+		// This method is also called when the device is turned (portrait/landscape
+		// switch) and will result in repeated restart of the app
+		// detecting rotation to prevent unnecessary calls to restartDelayed is
+		// supposed to be complex and may require logic that spans onStop and onCreate
+		// since these are called by the Android system when the screen is rotated
+		// see: https://stackoverflow.com/questions/6896243/how-can-i-detect-screen-rotation
+		// and: https://stackoverflow.com/questions/4843809/how-do-i-detect-screen-rotation
+		// restartDelayed();
 		super.onStop();
 	}
 
