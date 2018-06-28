@@ -32,7 +32,7 @@ public class CheckRestartService extends Service {
 	private boolean stopTask = false;
 	private Timer timer = null;
 	//
-	// alternative for using the timer, could even replace this service???
+	// Alternative for using Timer. Could even replace this service by running this from the MainActivity ???
 	// see; https://developer.android.com/reference/android/os/Handler.html
 	//      https://developer.android.com/reference/java/lang/Runnable.html
 	//      https://developer.android.com/reference/android/os/Looper.html
@@ -65,7 +65,7 @@ public class CheckRestartService extends Service {
 
 
 	// Class used for the client Binder.
-	public class LocalBinder extends Binder {
+	class LocalBinder extends Binder {
 		CheckRestartService getService() {
 			// Return this instance of CheckRestartService so clients can call public methods
 			return CheckRestartService.this;
@@ -140,8 +140,10 @@ public class CheckRestartService extends Service {
 	public void onDestroy() {
 		Log.i(className, "override onDestroy");
 		stopTask = true;
-		timer.cancel();
-		timer = null;
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
+		}
 		super.onDestroy();
 	}
 

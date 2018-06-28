@@ -23,6 +23,7 @@ public class PersistService extends Service {
 	// and http://stackoverflow.com/questions/7619917/how-to-get-context-in-android-service-class
 	private static Context relevantContext;
 	private static boolean stopTask;
+	private Timer timer = null;
 //	private PowerManager.WakeLock mWakeLock = null;
 
 	// getting list of running apps has become less trivial
@@ -107,7 +108,7 @@ public class PersistService extends Service {
 				}
 			}
 		};
-		Timer timer = new Timer();
+		timer = new Timer();
 		timer.scheduleAtFixedRate(task, intervalBetweenForegroundChecks, intervalBetweenForegroundChecks);
 	}
 
@@ -118,6 +119,13 @@ public class PersistService extends Service {
 //		if (mWakeLock != null) {
 //			mWakeLock.release();
 //		}
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
+		}
+		if (relevantContext != null) {
+			relevantContext = null;
+		}
 		super.onDestroy();
 	}
 

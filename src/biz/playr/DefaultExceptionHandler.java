@@ -10,7 +10,7 @@ import android.util.Log;
 /*
  * see http://chintanrathod.com/auto-restart-application-after-crash-forceclose-in-android/
  */
-public class DefaultExceptionHandler implements UncaughtExceptionHandler {
+class DefaultExceptionHandler implements UncaughtExceptionHandler {
 	private static final String className = "DefaultExceptionHandler";
 	// the restart delay is relatively long because this also affects the
 	// time a user has when changing a setting or using any other app
@@ -25,7 +25,7 @@ public class DefaultExceptionHandler implements UncaughtExceptionHandler {
 		this.defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
 		this.activity = activity;
 	}
-	public Activity getActivity() {
+	private Activity getActivity() {
 		return this.activity;
 	}
 
