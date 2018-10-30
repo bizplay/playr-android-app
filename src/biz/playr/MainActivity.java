@@ -7,6 +7,7 @@ import biz.playr.R;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -26,6 +27,9 @@ import android.view.View;
 import android.os.Handler;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebResourceError;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
@@ -159,39 +163,46 @@ public class MainActivity extends Activity implements IServiceCallbacks {
 				return false; // then it is not handled by default action
 			}
 
+			/*
+			 * this version of this method is deprecated from API version 23
+			 */
 			@Override
-			public void onReceivedError(WebView view, int errorCode,
-					String description, String failingUrl) {
+			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
 				Log.i(className, "override onReceivedError");
 				// Toast.makeText(getActivity(), "WebView Error" +
 				// description(), Toast.LENGTH_SHORT).show();
 				Log.e(className, "WebView(Client) error: " + description
 						+ " code: " + String.valueOf(errorCode) + " URL: "
 						+ failingUrl);
-				Log.e(className,
-						"===>>> !!! WebViewClient.onReceivedError Reloading Webview !!! <<<===");
-				// super.onReceivedError(view, errorCode, description,
-				// failingUrl);
+				Log.e(className, "===>>> !!! WebViewClient.onReceivedError Reloading Webview !!! <<<===");
+				// super.onReceivedError(view, errorCode, description, failingUrl);
 				view.reload();
 			}
 
 			/*
 			 * Added in API level 23 (use these when we set
 			 * android:targetSdkVersion to 23)
-			 *
-			 * @Override public void onReceivedError(WebView view,
-			 * WebResourceRequest request, WebResourceError error) {
-			 * Toast.makeText(getActivity(), "WebView Error" +
-			 * error.getDescription(), Toast.LENGTH_SHORT).show();
-			 * super.onReceivedError(view, request, error); }
-			 *
-			 * @Override public void onReceivedHttpError(WebView view,
-			 * WebResourceRequest request, WebResourceResponse errorResponse) {
-			 * Toast.makeText(getActivity(), "WebView Error" +
-			 * errorResponse.getReasonPhrase(), Toast.LENGTH_SHORT).show();
-			 *
-			 * super.onReceivedHttpError(view, request, errorResponse); }
 			 */
+             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+				 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+					 // Toast.makeText(getActivity(), "WebView Error" + error.getDescription(), Toast.LENGTH_SHORT).show();
+					 Log.e(className, "onReceivedError WebView error: " + error.getDescription()
+							 + " code: " + String.valueOf(error.getErrorCode()) + " URL: " + request.getUrl().toString());
+				 }
+                 Log.e(className, "===>>> !!! WebViewClient.onReceivedError Reloading Webview !!! <<<===");
+                 // super.onReceivedError(view, request, error);
+                 view.reload();
+			 }
+
+			 @Override
+             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+				 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					 // Toast.makeText(getActivity(), "WebView Error" + errorResponse.getReasonPhrase(), Toast.LENGTH_SHORT).show();
+					 Log.e(className, "onReceivedHttpError WebView http error: " + errorResponse.getReasonPhrase()
+							 + " URL: " + request.getUrl().toString());
+				 }
+				 super.onReceivedHttpError(view, request, errorResponse);
+			 }
 		});
 		webView.setKeepScreenOn(true);
 

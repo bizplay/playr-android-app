@@ -10,19 +10,11 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
-        <!-- TODO settings below can be used from API level 21 -->
-        <!--<item name="android:colorPrimary">@color/primary</item>-->
-        <!--<item name="android:windowAllowReturnTransitionOverlap">true</item>-->
-        <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <!-- TODO settings below can be used from API level 21 -->
-        <!--<item name="android:colorPrimary">@color/primary</item>-->
-        <!--<item name="android:windowAllowReturnTransitionOverlap">true</item>-->
-        <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
     </style>
 
 </resources>
